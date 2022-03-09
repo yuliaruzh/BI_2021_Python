@@ -1,45 +1,55 @@
-class DNA:
-    def __init__(self, DNA):
-        self.DNA = DNA.upper()
+class NuclAcid:
+    def __init__(self, seq, compl_nucl, clas):
+        self.seq = seq.upper()
+        self.compl_nucl = compl_nucl
+        self.clas = clas
 
     def __iter__(self):
         self.indx = 0
         return self
 
     def __next__(self):
-        if self.indx >= len(self.DNA):
+        if self.indx >= len(self.seq):
             raise StopIteration()
-        x = self.DNA[self.indx]
+        x = self.seq[self.indx]
         self.indx += 1
 
         return x
 
+    def __repr__(self):
+        return self.seq
+
     def gc_content(self):
         sum_gc = 0
-        n = len(self.DNA)
-        for nucl in self.DNA:
+        n = len(self.seq)
+        for nucl in self.seq:
             if nucl == 'C' or nucl == 'G':
                 sum_gc += 1
         return (sum_gc / n) * 100
 
     def reverse_complement(self):
         compl_dna = ''
-        A = {
+
+        for nucl in self.seq:
+            compl_dna += self.compl_nucl[nucl]
+        reverse_compl_dna = compl_dna[::-1]
+        return self.clas(reverse_compl_dna)
+
+    def __eq__(self, other):
+        if isinstance(other, self.clas):
+            return self.seq == other.seq
+
+        return False
+
+
+class DNA(NuclAcid):
+    def __init__(self, seq):
+        super().__init__(seq, {
             'A': 'T',
             'T': 'A',
             'G': 'C',
             'C': 'G'
-        }
-        for nucl in self.DNA:
-            compl_dna += A[nucl]
-        reverse_compl_dna = compl_dna[::-1]
-        return DNA(reverse_compl_dna)
-
-    def __eq__(self, other):
-        if isinstance(other, DNA):
-            return self.DNA == other.DNA
-
-        return False
+        }, DNA)
 
     def transcribe(self):
         rna = ''
@@ -49,52 +59,19 @@ class DNA:
             'G': 'C',
             'C': 'G'
         }
-        for nucl in self.DNA:
+        for nucl in self.seq:
             rna += A[nucl]
         return RNA(rna)
 
 
-class RNA:
-    def __init__(self, RNA):
-        self.RNA = RNA.upper()
-
-    def __iter__(self):
-        self.indx = 0
-        return self
-
-    def __next__(self):
-        if self.indx >= len(self.RNA):
-            raise StopIteration()
-        x = self.RNA[self.indx]
-        self.indx += 1
-        return x
-
-    def gc_content(self):
-        sum_gc = 0
-        n = len(self.RNA)
-        for nucl in self.RNA:
-            if nucl == 'C' or nucl == 'G':
-                sum_gc += 1
-        return (sum_gc / n) * 100
-
-    def reverse_complement(self):
-        compl_rna = ''
-        A = {
+class RNA(NuclAcid):
+    def __init__(self, seq):
+        super().__init__(seq, {
             'A': 'U',
             'U': 'A',
             'G': 'C',
             'C': 'G'
-        }
-        for nucl in self.RNA:
-            compl_rna += A[nucl]
-        reverse_compl_rna = compl_rna[::-1]
-        return RNA(reverse_compl_rna)
-
-    def __eq__(self, other):
-        if isinstance(other, RNA):
-            return self.RNA == other.RNA
-
-        return False
+        }, RNA)
 
 
 assert DNA('gcgcgc').gc_content() == 100
